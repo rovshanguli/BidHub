@@ -1,0 +1,57 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+<ul id="bidhistory">
+    <li value="0">0</li>
+</ul>
+<button id="bidbutton">Bid</button>
+<button id="join">Join Auction</button>
+
+
+<script src="~/js/microsoft/signalr/dist/browser/signalr.min.js"></script>
+
+<script>
+    let connection = new signalR.HubConnectionBuilder().withUrl("/bidhub").build();
+
+    connection.on("ReciveChange", function (user, bid,bids) {
+        let history = document.getElementById("bidhistory");
+        history.innerHTML += `<li value=${bid}> ${bid}</li>`
+        console.log(bids);
+    })
+
+    let button = document.getElementById("bidbutton");
+
+    button.addEventListener("click",function(){
+        connection.invoke("ChangeBid","Elovset", 15)
+        //connection.invoke("CountDown")
+    })
+
+
+    let join = document.getElementById("join");
+
+
+    join.addEventListener("click", function(){
+        connection.invoke("AddUserToGroup")
+    })
+
+    connection.on("Connect", function (auction) {
+        console.log(auction);
+    })
+
+    connection.on("EndOfBid",function(secconds,message){
+        console.log("EndTest");
+        console.log(secconds);
+        console.log(message);
+    })
+
+    connection.on("countSecodns",function(text,second){
+        console.log(second);
+    })
+
+    connection.start();
+
+    
+
+</script>
